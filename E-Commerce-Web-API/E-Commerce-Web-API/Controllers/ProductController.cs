@@ -1,4 +1,5 @@
 ﻿using E_Commerce_Web_API.Data;
+using E_Commerce_Web_API.DTOs;
 using E_Commerce_Web_API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +20,22 @@ namespace E_Commerce_Web_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductsAsync()
         {
-            var products = await _context.Products.ToListAsync();
-            if (products is null)
+            var productsDTOs = await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Select(p => new ProductDTO
+                {
+                    ID = p.ID,
+                    Name = p.Name,
+                    Price = p.Price,
+                    CategoryName = p.Category.Name ?? string.Empty
+                }).ToListAsync();
+            if (productsDTOs is null)
             {
                 return NotFound();
             }
-            return Ok(products);
+
+            return Ok(productsDTOs);
         }
 
         [HttpGet("{id}")]
@@ -34,20 +45,38 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return BadRequest();
             }
-            var product = await _context.Products.FindAsync(id);
-            if (product is null)
+            var productDTO = await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Select(p => new ProductDTO
+                {
+                    ID = p.ID,
+                    Name = p.Name,
+                    Price = p.Price,
+                    CategoryName = p.Category.Name ?? string.Empty
+                })
+                .FirstOrDefaultAsync(p => p.ID == id);
+            if (productDTO is null)
             {
                 return NotFound("Product not found");
             }
-            return Ok(product);
+
+            return Ok(productDTO);
         }
         [HttpPost]
-        public async Task<ActionResult> CreateProductAsync(Product product)
+        public async Task<ActionResult> CreateProductAsync(CreateProductDTO productdto)
         {
-            if (product is null)
+            if (productdto is null)
             {
                 return BadRequest();
             }
+            var product = new Product
+            {
+                Name = productdto.Name,
+                Price = productdto.Price,
+                Description = productdto.Description,
+                CategoryID = productdto.CategoryID
+            };
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 

@@ -10,7 +10,11 @@ namespace E_Commerce_Web_API.Data.Configurations
             builder.HasKey(c => c.ID);
             builder.Property(c => c.Name).IsRequired().HasMaxLength(50);
             builder.ToTable("Categories");
+            builder.HasData(
+                  new Category { ID = 1, Name = "Electronics" },
+                  new Category { ID = 2, Name = "Books" },
+                  new Category { ID = 3, Name = "Clothing" });
         }
-    
+
     }
 }

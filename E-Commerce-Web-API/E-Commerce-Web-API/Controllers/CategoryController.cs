@@ -1,8 +1,8 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using E_Commerce_Web_API.DTOs;
 
 namespace E_Commerce_Web_API.Controllers
 {
@@ -19,14 +19,22 @@ namespace E_Commerce_Web_API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategoriesAsync()
         {
-            var categories = await _context.Categories.ToListAsync();
-            if (categories is null)
+            var categoriesDTOs = await _context.Categories
+                .AsNoTracking()
+                .Include(c => c.Products)
+                .Select(c => new CategoryDTO
+                {
+                    ID = c.ID,
+                    Name = c.Name,
+                    ProductsCount = c.Products.Count()
+                }).ToListAsync();
+            if (categoriesDTOs is null)
             {
                 return NotFound();
             }
-            return Ok(categories);
-        }
 
+            return Ok(categoriesDTOs);
+        }
         [HttpGet("{id}")]
         public async Task<ActionResult<Category>> GetCategoryByIdAsync(int id)
         {
@@ -34,7 +42,15 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return BadRequest();
             }
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories
+                .AsNoTracking()
+                .Include(c => c.Products)
+                .Select(c => new CategoryDTO
+                {
+                    ID = c.ID,
+                    Name = c.Name,
+                    ProductsCount = c.Products.Count()
+                }).FirstOrDefaultAsync(c => c.ID == id);
             if (category is null)
             {
                 return NotFound("Category not found");
@@ -44,12 +60,16 @@ namespace E_Commerce_Web_API.Controllers
 
         [HttpPost]
 
-        public async Task<ActionResult> CreateCategoryAsync(Category category)
+        public async Task<ActionResult> CreateCategoryAsync(CreateCategoryDTO categorydto)
         {
-            if (category is null)
+            if (categorydto is null)
             {
                 return BadRequest();
             }
+            var category = new Category
+            {
+                Name = categorydto.Name
+            };
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetCategoryByIdAsync), new { id = category.ID }, category);
