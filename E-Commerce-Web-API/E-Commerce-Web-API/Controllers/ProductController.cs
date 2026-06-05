@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs;
+using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,10 @@ namespace E_Commerce_Web_API.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public ProductController(AppDbContext context)
+        private readonly IProductRepository _productRepository;
+        public ProductController(IProductRepository productRepository)
         {
-            _context = context;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
@@ -23,16 +24,7 @@ namespace E_Commerce_Web_API.Controllers
 
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsAsync()
         {
-            var productsDTOs = await _context.Products
-                .AsNoTracking()
-                .Include(p => p.Category)
-                .Select(p => new ProductDTO
-                {
-                    ID = p.ID,
-                    Name = p.Name,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name ?? string.Empty
-                }).ToListAsync();
+           var productsDTOs = await _productRepository.GetProductsAsync();
             if (productsDTOs is null)
             {
                 return NotFound("Products not found");
@@ -41,7 +33,7 @@ namespace E_Commerce_Web_API.Controllers
             return Ok(productsDTOs);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = nameof(GetProductByIdAsync))]
         [ProducesResponseType<ProductDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,17 +43,7 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return BadRequest("Invalid product ID");
             }
-            var productDTO = await _context.Products
-                .AsNoTracking()
-                .Include(p => p.Category)
-                .Select(p => new ProductDTO
-                {
-                    ID = p.ID,
-                    Name = p.Name,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name ?? string.Empty
-                })
-                .FirstOrDefaultAsync(p => p.ID == id);
+            var productDTO = await _productRepository.GetProductByIdAsync(id);
             if (productDTO is null)
             {
                 return NotFound("Product not found");
@@ -72,23 +54,15 @@ namespace E_Commerce_Web_API.Controllers
         [HttpPost]
         [ProducesResponseType<ProductDTO>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ProductDTO>> CreateProductAsync(CreateProductDTO productdto)
+        public async Task<ActionResult<Product>> CreateProductAsync(CreateProductDTO productdto)
         {
             if (productdto is null)
             {
                 return BadRequest("Invalid product data");
             }
-            var product = new Product
-            {
-                Name = productdto.Name,
-                Price = productdto.Price,
-                Description = productdto.Description,
-                CategoryID = productdto.CategoryID
-            };
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            var product = await _productRepository.CreateProductAsync(productdto);
 
-            return CreatedAtAction(nameof(GetProductByIdAsync), new { id = product.ID }, product);
+            return CreatedAtRoute(nameof(GetProductByIdAsync), new { id = product.ID }, product);
         }
 
         [HttpPut("{id}")]
@@ -102,7 +76,7 @@ namespace E_Commerce_Web_API.Controllers
                 return BadRequest("Invalid product ID");
             }
 
-            var existingProduct = await _context.Products.FindAsync(id);
+            var existingProduct = await _productRepository.GetProductEntityByIdAsync(id);
             if (existingProduct is null)
             {
                 return NotFound("Product not found");
@@ -112,7 +86,7 @@ namespace E_Commerce_Web_API.Controllers
             existingProduct.Price = productdto.Price;
             existingProduct.CategoryID = productdto.CategoryID;
 
-            await _context.SaveChangesAsync();
+            await _productRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -122,15 +96,13 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteProductAsync(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productRepository.GetProductEntityByIdAsync(id);
             if (product is null)
             {
                 return NotFound("Product not found");
             }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
+            await _productRepository.DeleteProductAsync(product);
             return NoContent();
         }
     }
