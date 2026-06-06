@@ -22,7 +22,8 @@ namespace E_Commerce_Web_API.Data.Configurations
                 .IsRequired();
             builder.HasOne(p => p.Category)
                .WithMany(c => c.Products)
-               .HasForeignKey(p => p.CategoryID);
+               .HasForeignKey(p => p.CategoryID)
+               .OnDelete(DeleteBehavior.Restrict);
             builder.HasData(
             new Product
             {

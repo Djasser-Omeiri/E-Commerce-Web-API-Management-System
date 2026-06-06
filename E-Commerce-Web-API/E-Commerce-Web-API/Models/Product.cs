@@ -9,5 +9,9 @@
         public int CategoryID { get; set; }
         public Category Category { get; set; } = null!;
 
+        public Stock Stock { get; set; }=null!;
+
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
     }
 }
