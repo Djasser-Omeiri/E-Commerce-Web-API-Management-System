@@ -1,5 +1,5 @@
 ﻿using E_Commerce_Web_API.Data;
-using E_Commerce_Web_API.DTOs;
+using E_Commerce_Web_API.DTOs.Product;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;

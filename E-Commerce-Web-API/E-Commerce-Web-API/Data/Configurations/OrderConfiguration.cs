@@ -14,8 +14,7 @@ namespace E_Commerce_Web_API.Data.Configurations
                 .IsRequired()
                 .HasDefaultValueSql("GETDATE()");
             builder.Property(o => o.TotalPrice)
-                .IsRequired().HasComputedColumnSql("[dbo].[CalculateOrderTotal]([ID])", stored: true)
-                .HasColumnType("decimal(18,2)");
+                .IsRequired().HasComputedColumnSql("[dbo].[CalculateOrderTotal]([ID])");
             builder.Property(o => o.ShippingAddress)
                 .IsRequired();
             builder.Property(o => o.Status)

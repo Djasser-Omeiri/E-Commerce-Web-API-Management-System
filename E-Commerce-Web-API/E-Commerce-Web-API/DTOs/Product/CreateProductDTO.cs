@@ -1,4 +1,4 @@
-﻿namespace E_Commerce_Web_API.DTOs
+﻿namespace E_Commerce_Web_API.DTOs.Product
 {
     public class CreateProductDTO
     {

@@ -2,8 +2,8 @@
 using E_Commerce_Web_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using E_Commerce_Web_API.DTOs;
 using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.DTOs.Category;
 
 namespace E_Commerce_Web_API.Controllers
 {

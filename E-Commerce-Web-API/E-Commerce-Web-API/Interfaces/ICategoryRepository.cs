@@ -1,4 +1,4 @@
-﻿using E_Commerce_Web_API.DTOs;
+﻿using E_Commerce_Web_API.DTOs.Category;
 using E_Commerce_Web_API.Models;
 
 namespace E_Commerce_Web_API.Interfaces
