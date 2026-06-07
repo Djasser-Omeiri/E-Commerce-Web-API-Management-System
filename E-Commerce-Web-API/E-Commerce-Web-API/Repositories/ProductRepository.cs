@@ -29,13 +29,13 @@ namespace E_Commerce_Web_API.Repositories
 
         public async Task DeleteProductAsync(Product product)
         {
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ProductDTO?> GetProductByIdAsync(int id)
         {
-            var productDTO = await _context.Products
+            return await _context.Products
                 .AsNoTracking()
                 .Select(p => new ProductDTO
                 {
@@ -45,13 +45,11 @@ namespace E_Commerce_Web_API.Repositories
                     CategoryName = p.Category.Name ?? string.Empty
                 })
                 .FirstOrDefaultAsync(p => p.ID == id);
-            return productDTO;
         }
 
         public async Task<Product?> GetProductEntityByIdAsync(int id)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.ID == id);
-            return product;
+            return await _context.Products.FirstOrDefaultAsync(p => p.ID == id);
         }
 
         public async Task<IEnumerable<ProductDTO>> GetProductsAsync()

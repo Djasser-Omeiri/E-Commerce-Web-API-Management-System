@@ -1,5 +1,8 @@
 ﻿using E_Commerce_Web_API.Data;
+using E_Commerce_Web_API.DTOs.OrderItem;
 using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_API.Repositories
 {
@@ -10,6 +13,65 @@ namespace E_Commerce_Web_API.Repositories
         public OrderItemRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<OrderItem> CreateOrderItemAsync(CreateOrderItemDTO orderItemDTO)
+        {
+            var OrderItem = new OrderItem
+            {
+                Quantity = orderItemDTO.Quantity,
+                PriceAtPurchase = orderItemDTO.PriceAtPurchase,
+                OrderID = orderItemDTO.OrderID,
+                ProductID = orderItemDTO.ProductID
+            };
+            _context.OrderItems.Add(OrderItem);
+            await _context.SaveChangesAsync();
+            return OrderItem;
+        }
+
+        public async Task DeleteOrderItemAsync(OrderItem orderItem)
+        {
+            _context.OrderItems.Remove(orderItem);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<OrderItemDTO?> GetOrderItemByIdAsync(int id)
+        {
+            return await _context.OrderItems
+                .AsNoTracking()
+                .Select(oi => new OrderItemDTO
+                {
+                    ID = oi.ID,
+                    Quantity = oi.Quantity,
+                    PriceAtPurchase = oi.PriceAtPurchase,
+                    OrderID = oi.OrderID,
+                    ProductName = oi.Product.Name
+                })
+                .FirstOrDefaultAsync(oi => oi.ID == id);
+        }
+
+        public async Task<OrderItem?> GetOrderItemEntityByIdAsync(int id)
+        {
+            return await _context.OrderItems.FirstOrDefaultAsync(oi => oi.ID == id);
+        }
+
+        public async Task<IEnumerable<OrderItemDTO>> GetOrderItemsAsync()
+        {
+            return await _context.OrderItems
+                .AsNoTracking()
+                .Select(oi => new OrderItemDTO
+                {
+                    ID = oi.ID,
+                    Quantity = oi.Quantity,
+                    PriceAtPurchase = oi.PriceAtPurchase,
+                    OrderID = oi.OrderID,
+                    ProductName = oi.Product.Name
+                }).ToListAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

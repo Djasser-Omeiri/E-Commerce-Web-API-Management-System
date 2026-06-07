@@ -2,5 +2,9 @@
 {
     public class CreateOrderItemDTO
     {
+        public int Quantity { get; set; }
+        public decimal PriceAtPurchase { get; set; }
+        public int OrderID { get; set; }
+        public int ProductID { get; set; }
     }
 }

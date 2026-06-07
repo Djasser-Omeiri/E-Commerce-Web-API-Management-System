@@ -2,5 +2,6 @@
 {
     public class CreateOrderDTO
     {
+        public string ShippingAddress { get; set; } = string.Empty;
     }
 }

@@ -1,5 +1,8 @@
 ﻿using E_Commerce_Web_API.Data;
+using E_Commerce_Web_API.DTOs.Review;
 using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_API.Repositories
 {
@@ -10,6 +13,63 @@ namespace E_Commerce_Web_API.Repositories
         public ReviewRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<Review> CreateReviewAsync(CreateReviewDTO ReviewDTO)
+        {
+            var Review = new Review
+            {
+                Comment = ReviewDTO.Comment,
+                ProductID = ReviewDTO.ProductID,
+                Rating = ReviewDTO.Rating
+            };
+            _context.Reviews.Add(Review);
+            await _context.SaveChangesAsync();
+            return Review;
+        }
+
+        public async Task DeleteReviewAsync(Review Review)
+        {
+            _context.Reviews.Remove(Review);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<ReviewDTO?> GetReviewByIdAsync(int id)
+        {
+            return await _context.Reviews
+                .AsNoTracking()
+                .Select(r => new ReviewDTO
+                {
+                    ID = r.ID,
+                    Comment = r.Comment,
+                    Rating = r.Rating,
+                    CreatedAt = r.CreatedAt,
+                    ProductName = r.Product.Name
+                }).FirstOrDefaultAsync(r => r.ID == id);
+        }
+
+        public async Task<Review?> GetReviewEntityByIdAsync(int id)
+        {
+            return await _context.Reviews.FirstOrDefaultAsync(r => r.ID == id);
+        }
+
+        public async Task<IEnumerable<ReviewDTO>> GetReviewsAsync()
+        {
+            return await _context.Reviews
+                .AsNoTracking()
+                .Select(r => new ReviewDTO
+                {
+                    ID = r.ID,
+                    Comment = r.Comment,
+                    Rating = r.Rating,
+                    CreatedAt = r.CreatedAt,
+                    ProductName = r.Product.Name
+                }).ToListAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

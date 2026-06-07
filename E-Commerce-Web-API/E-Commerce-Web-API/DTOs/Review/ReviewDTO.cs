@@ -2,5 +2,10 @@
 {
     public class ReviewDTO
     {
+        public int ID { get; set; }
+        public string Comment { get; set; } = string.Empty;
+        public int Rating { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string ProductName { get; set; } = string.Empty;
     }
 }

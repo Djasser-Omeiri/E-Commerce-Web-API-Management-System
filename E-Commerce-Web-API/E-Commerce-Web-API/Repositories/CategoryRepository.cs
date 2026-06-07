@@ -32,7 +32,7 @@ namespace E_Commerce_Web_API.Repositories
 
         public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
         {
-            var categoriesDTOs = await _context.Categories
+            return await _context.Categories
                 .AsNoTracking()
                 .Select(c => new CategoryDTO
                 {
@@ -40,12 +40,11 @@ namespace E_Commerce_Web_API.Repositories
                     Name = c.Name,
                     ProductsCount = c.Products.Count()
                 }).ToListAsync();
-            return categoriesDTOs;
         }
 
         public async Task<CategoryDTO?> GetCategoryByIdAsync(int id)
         {
-            var category = await _context.Categories
+            return await _context.Categories
                 .AsNoTracking()
                 .Select(c => new CategoryDTO
                 {
@@ -53,13 +52,11 @@ namespace E_Commerce_Web_API.Repositories
                     Name = c.Name,
                     ProductsCount = c.Products.Count()
                 }).FirstOrDefaultAsync(c => c.ID == id);
-            return category;
         }
 
         public async Task<Category?> GetCategoryEntityByIdAsync(int id)
         {
-            var category = await _context.Categories.FirstOrDefaultAsync(c => c.ID == id);
-            return category;
+            return await _context.Categories.FirstOrDefaultAsync(c => c.ID == id);
         }
 
         public async Task SaveChangesAsync()

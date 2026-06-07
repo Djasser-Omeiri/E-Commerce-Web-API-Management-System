@@ -2,5 +2,7 @@
 {
     public class CreateStockDTO
     {
+        public int Quantity { get; set; }
+        public int ProductID { get; set; }
     }
 }

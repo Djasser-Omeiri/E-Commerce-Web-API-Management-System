@@ -1,4 +1,5 @@
-﻿using E_Commerce_Web_API.Models;
+﻿using E_Commerce_Web_API.Enums;
+using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,7 +19,7 @@ namespace E_Commerce_Web_API.Data.Configurations
             builder.Property(o => o.ShippingAddress)
                 .IsRequired();
             builder.Property(o => o.Status)
-                .IsRequired();
+                .IsRequired().HasDefaultValue(eOrderStatus.Pending);
         }
     }
 }
