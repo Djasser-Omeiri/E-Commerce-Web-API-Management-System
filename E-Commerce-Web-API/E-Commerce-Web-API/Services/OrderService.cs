@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Web_API.DTOs.Order;
 using E_Commerce_Web_API.DTOs.OrderItem;
+using E_Commerce_Web_API.Enums;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
@@ -102,6 +103,47 @@ namespace E_Commerce_Web_API.Services
                     ProductName = oi.Product?.Name ?? string.Empty
                 }).ToList()
             });
+        }
+        public async Task<OrderDTO?> UpdateOrderStatusAsync(int id, CreateOrderDTO dto)
+        {
+            Order? order = await _unitOfWork.Orders.GetOrderEntityByIdAsync(id);
+
+            if (order == null)
+            {
+                return null;
+            }
+
+            // 3. THE BUSINESS LOGIC: Parse the string from the DTO into your actual Enum type.
+            // 'true' makes the parsing ignore case (e.g., "shipped" or "Shipped" will both work).
+            if (Enum.TryParse(typeof(eOrderStatus), dto.NewStatus, true, out var parsedStatus))
+            {
+                order.Status = (eOrderStatus)parsedStatus;
+            }
+            else
+            {
+                // If the frontend sends something crazy like "InTransit", throw an exception
+                throw new ArgumentException($"'{dto.NewStatus}' is not a valid order status.");
+            }
+
+            // 4. Save the changes to SQL Server.
+            // Because Entity Framework is actively tracking the 'order' object we fetched above,
+            // it automatically knows the status changed and will execute the SQL UPDATE statement.
+            await _unitOfWork.CompleteAsync();
+
+            // 5. Map the updated database entity back into your clean OrderDTO
+            return new OrderDTO
+            {
+                ID = order.ID,
+                OrderTime = order.OrderTime,
+                TotalPrice = order.TotalPrice,
+                ShippingAddress = order.ShippingAddress,
+                Status = order.Status.ToString(), // Convert enum back to string for the frontend
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDTO
+                {
+                    ProductName = oi.Product?.Name ?? "Unknown Product",
+                    Quantity = oi.Quantity
+                }).ToList()
+            };
         }
     }
 }

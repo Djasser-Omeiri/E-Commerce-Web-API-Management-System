@@ -10,5 +10,7 @@ namespace E_Commerce_Web_API.Interfaces.Services
         Task<Order?> GetOrderEntityByIdAsync(int id);
         Task<Order> CreateOrderAsync(CreateOrderDTO orderDTO);
         Task DeleteOrderAsync(Order order);
+        Task<OrderDTO?> UpdateOrderAddressAsync(int id, UpdateOrderAddressDTO dto);
+        Task<OrderDTO?> UpdateOrderStatusAsync(int id, UpdateOrderStatusDTO dto);
     }
 }
