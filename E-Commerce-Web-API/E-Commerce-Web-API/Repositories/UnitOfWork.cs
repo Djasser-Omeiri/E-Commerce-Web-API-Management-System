@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Interfaces.Repositories;
 
 namespace E_Commerce_Web_API.Repositories
 {

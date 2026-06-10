@@ -1,6 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs.Category;
-using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,55 +13,35 @@ namespace E_Commerce_Web_API.Repositories
         {
             _context = context;
         }
-        public async Task<Category> CreateCategoryAsync(CreateCategoryDTO categorydto)
+
+        public async Task<Category> CreateCategoryAsync(Category category)
         {
-            var category = new Category
-            {
-                Name = categorydto.Name
-            };
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            await _context.Categories.AddAsync(category);
             return category;
         }
 
         public async Task DeleteCategoryAsync(Category category)
         {
             _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
         {
             return await _context.Categories
                 .AsNoTracking()
-                .Select(c => new CategoryDTO
-                {
-                    ID = c.ID,
-                    Name = c.Name,
-                    ProductsCount = c.Products.Count()
-                }).ToListAsync();
+                .ToListAsync();
         }
 
-        public async Task<CategoryDTO?> GetCategoryByIdAsync(int id)
+        public async Task<Category?> GetCategoryByIdAsync(int id)
         {
             return await _context.Categories
                 .AsNoTracking()
-                .Select(c => new CategoryDTO
-                {
-                    ID = c.ID,
-                    Name = c.Name,
-                    ProductsCount = c.Products.Count()
-                }).FirstOrDefaultAsync(c => c.ID == id);
+                .FirstOrDefaultAsync(c => c.ID == id);
         }
 
         public async Task<Category?> GetCategoryEntityByIdAsync(int id)
         {
             return await _context.Categories.FirstOrDefaultAsync(c => c.ID == id);
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }

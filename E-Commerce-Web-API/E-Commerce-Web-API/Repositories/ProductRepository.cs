@@ -1,6 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs.Product;
-using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,62 +13,35 @@ namespace E_Commerce_Web_API.Repositories
         {
             _context = context;
         }
-        public async Task<Product> CreateProductAsync(CreateProductDTO productDTO)
+        public async Task<Product> CreateProductAsync(Product product)
         {
-            var product = new Product
-            {
-                Name = productDTO.Name,
-                Price = productDTO.Price,
-                Description = productDTO.Description,
-                CategoryID = productDTO.CategoryID
-            };
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            await _context.Products.AddAsync(product);
             return product;
         }
 
         public async Task DeleteProductAsync(Product product)
         {
             _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task<ProductDTO?> GetProductByIdAsync(int id)
+        public async Task<Product?> GetProductByIdAsync(int id)
         {
             return await _context.Products
                 .AsNoTracking()
-                .Select(p => new ProductDTO
-                {
-                    ID = p.ID,
-                    Name = p.Name,
-                    Price = p.Price,
-                    CategoryName = p.Category.Name ?? string.Empty
-                })
                 .FirstOrDefaultAsync(p => p.ID == id);
         }
 
         public async Task<Product?> GetProductEntityByIdAsync(int id)
         {
-            return await _context.Products.FirstOrDefaultAsync(p => p.ID == id);
+            return await _context.Products.Include(p => p.Stock).FirstOrDefaultAsync(p => p.ID == id);
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetProductsAsync()
+        public async Task<IEnumerable<Product>> GetProductsAsync()
         {
             var productsDTOs = await _context.Products
                .AsNoTracking()
-               .Select(p => new ProductDTO
-               {
-                   ID = p.ID,
-                   Name = p.Name,
-                   Price = p.Price,
-                   CategoryName = p.Category.Name ?? string.Empty
-               }).ToListAsync();
+               .ToListAsync();
             return productsDTOs;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }

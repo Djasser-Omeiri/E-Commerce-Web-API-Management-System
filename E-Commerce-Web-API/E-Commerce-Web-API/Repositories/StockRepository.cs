@@ -1,7 +1,7 @@
 ﻿
 using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs.Stock;
-using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,14 +24,12 @@ namespace E_Commerce_Web_API.Repositories
                 ProductID = StockDTO.ProductID
             };
             _context.Stocks.Add(Stock);
-            await _context.SaveChangesAsync();
             return Stock;
         }
 
         public async Task DeleteStockAsync(Stock Stock)
         {
             _context.Stocks.Remove(Stock);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<StockDTO?> GetStockByIdAsync(int id)
@@ -63,11 +61,6 @@ namespace E_Commerce_Web_API.Repositories
                     ProductName = s.Product.Name
                 })
                 .ToListAsync();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }

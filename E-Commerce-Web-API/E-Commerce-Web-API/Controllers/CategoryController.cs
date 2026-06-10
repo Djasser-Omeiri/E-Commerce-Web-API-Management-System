@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.DTOs.Category;
+using E_Commerce_Web_API.Interfaces.Services;
 
 namespace E_Commerce_Web_API.Controllers
 {
@@ -11,10 +12,10 @@ namespace E_Commerce_Web_API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryController(ICategoryRepository categoryRepository)
+        private readonly ICategoryService _categoryService;
+        public CategoryController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -22,7 +23,7 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesAsync()
         {
-            var categoriesDTOs = await _categoryRepository.GetCategoriesAsync();
+            var categoriesDTOs = await _categoryService.GetCategoriesAsync();
             if (categoriesDTOs is null)
             {
                 return NotFound("Categories not found");
@@ -40,7 +41,7 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return BadRequest("Invalid category ID");
             }
-            var category = await _categoryRepository.GetCategoryByIdAsync(id);
+            var category = await _categoryService.GetCategoryByIdAsync(id);
             if (category is null)
             {
                 return NotFound("Category not found");
@@ -58,8 +59,7 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return BadRequest("Invalid category data");
             }
-            var category = await _categoryRepository.CreateCategoryAsync(categorydto);
-            
+            var category = await _categoryService.CreateCategoryAsync(categorydto);
             return CreatedAtRoute(nameof(GetCategoryByIdAsync), new { id = category.ID }, category);
         }
 
@@ -70,18 +70,18 @@ namespace E_Commerce_Web_API.Controllers
         public async Task<ActionResult> UpdateCategoryAsync(int id, CreateCategoryDTO categorydto)
         {
             if (id < 0)
-            {
                 return BadRequest("Invalid category ID");
-            }
 
-            var existingCategory = await _categoryRepository.GetCategoryEntityByIdAsync(id);
+            if (categorydto is null)
+                return BadRequest("Invalid category data");
+
+            var existingCategory = await _categoryService.GetCategoryEntityByIdAsync(id);
             if (existingCategory is null)
-            {
                 return NotFound("Category not found");
-            }
+
             existingCategory.Name = categorydto.Name;
 
-            await _categoryRepository.SaveChangesAsync();
+            await _categoryService.UpdateCategoryAsync(existingCategory);
 
             return NoContent();
         }
@@ -91,13 +91,13 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCategoryAsync(int id)
         {
-            var category = await _categoryRepository.GetCategoryEntityByIdAsync(id);
+            var category = await _categoryService.GetCategoryEntityByIdAsync(id);
             if (category is null)
             {
                 return NotFound("Category not found");
             }
 
-            await _categoryRepository.DeleteCategoryAsync(category);
+            await _categoryService.DeleteCategoryAsync(category);
             return NoContent();
         }
     }

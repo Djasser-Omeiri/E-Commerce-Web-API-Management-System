@@ -2,7 +2,7 @@
 using E_Commerce_Web_API.DTOs.Review;
 using E_Commerce_Web_API.Models;
 
-namespace E_Commerce_Web_API.Interfaces
+namespace E_Commerce_Web_API.Interfaces.Repositories
 {
     public interface IReviewRepository
     {
@@ -11,6 +11,5 @@ namespace E_Commerce_Web_API.Interfaces
         Task<Review?> GetReviewEntityByIdAsync(int id);
         Task<Review> CreateReviewAsync(CreateReviewDTO ReviewDTO);
         Task DeleteReviewAsync(Review Review);
-        Task SaveChangesAsync();
     }
 }

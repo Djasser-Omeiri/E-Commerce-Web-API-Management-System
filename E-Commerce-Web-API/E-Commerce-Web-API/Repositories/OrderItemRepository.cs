@@ -1,6 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs.OrderItem;
-using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,19 +20,15 @@ namespace E_Commerce_Web_API.Repositories
             var OrderItem = new OrderItem
             {
                 Quantity = orderItemDTO.Quantity,
-                PriceAtPurchase = orderItemDTO.PriceAtPurchase,
-                OrderID = orderItemDTO.OrderID,
                 ProductID = orderItemDTO.ProductID
             };
             _context.OrderItems.Add(OrderItem);
-            await _context.SaveChangesAsync();
             return OrderItem;
         }
 
         public async Task DeleteOrderItemAsync(OrderItem orderItem)
         {
             _context.OrderItems.Remove(orderItem);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<OrderItemDTO?> GetOrderItemByIdAsync(int id)
@@ -67,11 +63,6 @@ namespace E_Commerce_Web_API.Repositories
                     OrderID = oi.OrderID,
                     ProductName = oi.Product.Name
                 }).ToListAsync();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }

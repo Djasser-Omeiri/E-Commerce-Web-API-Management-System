@@ -1,6 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs.Review;
-using E_Commerce_Web_API.Interfaces;
+using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,14 +24,12 @@ namespace E_Commerce_Web_API.Repositories
                 Rating = ReviewDTO.Rating
             };
             _context.Reviews.Add(Review);
-            await _context.SaveChangesAsync();
             return Review;
         }
 
         public async Task DeleteReviewAsync(Review Review)
         {
             _context.Reviews.Remove(Review);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<ReviewDTO?> GetReviewByIdAsync(int id)
@@ -65,11 +63,6 @@ namespace E_Commerce_Web_API.Repositories
                     CreatedAt = r.CreatedAt,
                     ProductName = r.Product.Name
                 }).ToListAsync();
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }
