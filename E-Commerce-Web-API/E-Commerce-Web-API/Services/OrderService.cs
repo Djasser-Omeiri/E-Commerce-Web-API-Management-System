@@ -104,7 +104,7 @@ namespace E_Commerce_Web_API.Services
                 }).ToList()
             });
         }
-        public async Task<OrderDTO?> UpdateOrderStatusAsync(int id, CreateOrderDTO dto)
+        public async Task<OrderDTO?> UpdateOrderAddressAsync(int id, UpdateOrderAddressDTO dto)
         {
             Order? order = await _unitOfWork.Orders.GetOrderEntityByIdAsync(id);
 
@@ -113,37 +113,71 @@ namespace E_Commerce_Web_API.Services
                 return null;
             }
 
-            // 3. THE BUSINESS LOGIC: Parse the string from the DTO into your actual Enum type.
-            // 'true' makes the parsing ignore case (e.g., "shipped" or "Shipped" will both work).
-            if (Enum.TryParse(typeof(eOrderStatus), dto.NewStatus, true, out var parsedStatus))
+            if (order.Status != eOrderStatus.Pending)
             {
-                order.Status = (eOrderStatus)parsedStatus;
-            }
-            else
-            {
-                // If the frontend sends something crazy like "InTransit", throw an exception
-                throw new ArgumentException($"'{dto.NewStatus}' is not a valid order status.");
+                throw new InvalidOperationException("Cannot update the shipping address because the order is no longer Pending.");
             }
 
-            // 4. Save the changes to SQL Server.
-            // Because Entity Framework is actively tracking the 'order' object we fetched above,
-            // it automatically knows the status changed and will execute the SQL UPDATE statement.
+            order.ShippingAddress = dto.NewShippingAddress;
+
             await _unitOfWork.CompleteAsync();
 
-            // 5. Map the updated database entity back into your clean OrderDTO
-            return new OrderDTO
+            OrderDTO responseDto = new OrderDTO
             {
                 ID = order.ID,
                 OrderTime = order.OrderTime,
                 TotalPrice = order.TotalPrice,
                 ShippingAddress = order.ShippingAddress,
-                Status = order.Status.ToString(), // Convert enum back to string for the frontend
+                Status = order.Status.ToString(),
                 OrderItems = order.OrderItems.Select(oi => new OrderItemDTO
                 {
                     ProductName = oi.Product?.Name ?? "Unknown Product",
                     Quantity = oi.Quantity
                 }).ToList()
             };
+
+            return responseDto;
+        }
+
+        public async Task<OrderDTO?> UpdateOrderStatusAsync(int id, UpdateOrderStatusDTO dto)
+        {
+            Order? order = await _unitOfWork.Orders.GetOrderEntityByIdAsync(id);
+
+            if (order == null)
+            {
+                return null;
+            }
+
+            eOrderStatus newStatus;
+            if (!Enum.TryParse<eOrderStatus>(dto.NewStatus, true, out newStatus))
+            {
+                throw new ArgumentException($"'{dto.NewStatus}' is not a valid order status.");
+            }
+
+            if (order.Status == eOrderStatus.Cancelled || order.Status == eOrderStatus.Delivered)
+            {
+                throw new InvalidOperationException("Cannot modify the status of an order that has already been canceled or delivered.");
+            }
+
+            order.Status = newStatus;
+
+            await _unitOfWork.CompleteAsync();
+
+            OrderDTO responseDto = new OrderDTO
+            {
+                ID = order.ID,
+                OrderTime = order.OrderTime,
+                TotalPrice = order.TotalPrice,
+                ShippingAddress = order.ShippingAddress,
+                Status = order.Status.ToString(),
+                OrderItems = order.OrderItems.Select(oi => new OrderItemDTO
+                {
+                    ProductName = oi.Product?.Name ?? "Unknown Product",
+                    Quantity = oi.Quantity
+                }).ToList()
+            };
+
+            return responseDto;
         }
     }
 }
