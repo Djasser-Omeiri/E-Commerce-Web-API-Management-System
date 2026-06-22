@@ -24,10 +24,13 @@ namespace E_Commerce_Web_API.Services
             return category;
         }
 
-        public async Task DeleteCategoryAsync(Category category)
+        public async Task<bool> DeleteCategoryAsync(int id)
         {
+            var category = await _unitOfWork.Categories.GetCategoryEntityByIdAsync(id);
+            if (category == null) return false;
             await _unitOfWork.Categories.DeleteCategoryAsync(category);
             await _unitOfWork.CompleteAsync();
+            return true;
         }
 
         public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
@@ -59,9 +62,15 @@ namespace E_Commerce_Web_API.Services
             return await _unitOfWork.Categories.GetCategoryEntityByIdAsync(id);
         }
 
-        public async Task UpdateCategoryAsync(Category category)
+        public async Task<bool> UpdateCategoryAsync(int id, UpdateCategoryDTO categoryDTO)
         {
+            var existing = await _unitOfWork.Categories.GetCategoryEntityByIdAsync(id);
+            if (existing == null) return false;
+
+            existing.Name = categoryDTO.Name;
+
             await _unitOfWork.CompleteAsync();
+            return true;
         }
     }
 }

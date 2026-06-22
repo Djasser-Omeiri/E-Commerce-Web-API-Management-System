@@ -2,6 +2,7 @@
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_API.Services
 {
@@ -28,10 +29,13 @@ namespace E_Commerce_Web_API.Services
             return product;
         }
 
-        public async Task DeleteProductAsync(Product product)
+        public async Task<bool> DeleteProductAsync(int id)
         {
+            var product = await _unitOfWork.Products.GetProductEntityByIdAsync(id);
+            if (product == null) return false;
             await _unitOfWork.Products.DeleteProductAsync(product);
             await _unitOfWork.CompleteAsync();
+            return true;
         }
 
         public async Task<ProductDTO?> GetProductByIdAsync(int id)
@@ -53,9 +57,22 @@ namespace E_Commerce_Web_API.Services
             return await _unitOfWork.Products.GetProductEntityByIdAsync(id);
         }
 
-        public async Task UpdateProductAsync(Product product)
+        public async Task<bool> UpdateProductAsync(int id, UpdateProductDTO productDTO)
         {
+            var existing = await _unitOfWork.Products.GetProductEntityByIdAsync(id);
+            if (existing == null) return false;
+
+            var category = await _unitOfWork.Categories.GetCategoryEntityByIdAsync(productDTO.CategoryID);
+            if (category == null)
+                throw new ArgumentException("Category not found");
+
+            existing.Name = productDTO.Name;
+            existing.Description = productDTO.Description;
+            existing.Price = productDTO.Price;
+            existing.CategoryID = productDTO.CategoryID;
+
             await _unitOfWork.CompleteAsync();
+            return true;
         }
 
         public async Task<IEnumerable<ProductDTO>> GetProductsAsync()

@@ -70,24 +70,21 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> UpdateProductAsync(int id, CreateProductDTO productdto)
+        public async Task<ActionResult> UpdateProductAsync(int id, UpdateProductDTO productdto)
         {
             if (id < 0)
                 return BadRequest("Invalid product ID");
-            if (productdto is null)
-                return BadRequest("Invalid product data");
 
-            var existingProduct = await _productService.GetProductEntityByIdAsync(id);
-            if (existingProduct is null)
+            try
             {
-                return NotFound("Product not found");
+                var updated = await _productService.UpdateProductAsync(id, productdto);
+                if (!updated)
+                    return NotFound("Product not found");
             }
-            existingProduct.Name = productdto.Name;
-            existingProduct.Description = productdto.Description;
-            existingProduct.Price = productdto.Price;
-            existingProduct.CategoryID = productdto.CategoryID;
-
-            await _productService.UpdateProductAsync(existingProduct);
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             return NoContent();
         }
@@ -97,13 +94,10 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteProductAsync(int id)
         {
-            var product = await _productService.GetProductEntityByIdAsync(id);
-            if (product is null)
-            {
+            var deleted = await _productService.DeleteProductAsync(id);
+            if (!deleted)
                 return NotFound("Product not found");
-            }
 
-            await _productService.DeleteProductAsync(product);
             return NoContent();
         }
     }

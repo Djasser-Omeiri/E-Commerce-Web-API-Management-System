@@ -95,7 +95,7 @@ namespace E_Commerce_Web_API.Services
                 TotalPrice = o.TotalPrice,
                 ShippingAddress = o.ShippingAddress,
                 Status = o.Status.ToString(),
-                OrderItems = o.OrderItems.Select(oi => new E_Commerce_Web_API.DTOs.OrderItem.OrderItemDTO
+                OrderItems = o.OrderItems.Select(oi => new OrderItemDTO
                 {
                     ID = oi.ID,
                     Quantity = oi.Quantity,

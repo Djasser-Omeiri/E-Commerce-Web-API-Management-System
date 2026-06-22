@@ -67,21 +67,21 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> UpdateCategoryAsync(int id, CreateCategoryDTO categorydto)
+        public async Task<ActionResult> UpdateCategoryAsync(int id, UpdateCategoryDTO categorydto)
         {
             if (id < 0)
                 return BadRequest("Invalid category ID");
 
-            if (categorydto is null)
-                return BadRequest("Invalid category data");
-
-            var existingCategory = await _categoryService.GetCategoryEntityByIdAsync(id);
-            if (existingCategory is null)
-                return NotFound("Category not found");
-
-            existingCategory.Name = categorydto.Name;
-
-            await _categoryService.UpdateCategoryAsync(existingCategory);
+            try
+            {
+                var updated = await _categoryService.UpdateCategoryAsync(id, categorydto);
+                if (!updated)
+                    return NotFound("Category not found");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Conflict("The category was modified by another process. Please reload and retry.");
+            }
 
             return NoContent();
         }
@@ -91,13 +91,12 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCategoryAsync(int id)
         {
-            var category = await _categoryService.GetCategoryEntityByIdAsync(id);
-            if (category is null)
+            var deleted = await _categoryService.DeleteCategoryAsync(id);
+            if (!deleted)
             {
                 return NotFound("Category not found");
             }
 
-            await _categoryService.DeleteCategoryAsync(category);
             return NoContent();
         }
     }

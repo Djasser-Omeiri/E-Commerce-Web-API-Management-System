@@ -9,7 +9,7 @@ namespace E_Commerce_Web_API.Interfaces.Services
         Task<ProductDTO?> GetProductByIdAsync(int id);
         Task<Product?> GetProductEntityByIdAsync(int id);
         Task<Product> CreateProductAsync(CreateProductDTO productDTO);
-        Task UpdateProductAsync(Product product);
-        Task DeleteProductAsync(Product product);
+        Task<bool> UpdateProductAsync(int id, UpdateProductDTO productDTO);
+        Task<bool> DeleteProductAsync(int id);
     }
 }

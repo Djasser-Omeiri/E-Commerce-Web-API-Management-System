@@ -9,7 +9,7 @@ namespace E_Commerce_Web_API.Interfaces.Services
         Task<CategoryDTO?> GetCategoryByIdAsync(int id);
         Task<Category?> GetCategoryEntityByIdAsync(int id);
         Task<Category> CreateCategoryAsync(CreateCategoryDTO categorydto);
-        Task UpdateCategoryAsync(Category category);
-        Task DeleteCategoryAsync(Category category);
+        Task<bool> UpdateCategoryAsync(int id, UpdateCategoryDTO categoryDTO);
+        Task<bool> DeleteCategoryAsync(int id);
     }
 }

@@ -40,7 +40,6 @@ namespace E_Commerce_Web_API.Repositories
                     ID = oi.ID,
                     Quantity = oi.Quantity,
                     PriceAtPurchase = oi.PriceAtPurchase,
-                    OrderID = oi.OrderID,
                     ProductName = oi.Product.Name
                 })
                 .FirstOrDefaultAsync(oi => oi.ID == id);
@@ -60,7 +59,6 @@ namespace E_Commerce_Web_API.Repositories
                     ID = oi.ID,
                     Quantity = oi.Quantity,
                     PriceAtPurchase = oi.PriceAtPurchase,
-                    OrderID = oi.OrderID,
                     ProductName = oi.Product.Name
                 }).ToListAsync();
         }
