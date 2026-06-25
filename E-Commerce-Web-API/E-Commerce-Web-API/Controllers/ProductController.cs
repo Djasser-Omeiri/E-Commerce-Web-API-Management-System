@@ -3,6 +3,7 @@ using E_Commerce_Web_API.DTOs.Product;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace E_Commerce_Web_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -20,6 +22,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType<ProductDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
@@ -53,6 +56,7 @@ namespace E_Commerce_Web_API.Controllers
             return Ok(productDTO);
         }
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType<ProductDTO>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Product>> CreateProductAsync(CreateProductDTO productdto)
