@@ -85,16 +85,12 @@ namespace E_Commerce_Web_API.Controllers
         [HttpPut("{id}/address")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateAddress(int id, [FromBody] UpdateOrderAddressDTO dto)
         {
             if (id <= 0)
             {
                 return BadRequest(new { Message = "Invalid order ID provided." });
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             try
@@ -118,16 +114,14 @@ namespace E_Commerce_Web_API.Controllers
             }
         }
         [HttpPut("{id}/status")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateStatus(int id, UpdateOrderStatusDTO dto)
         {
             if (id <= 0)
             {
                 return BadRequest(new { Message = "Invalid order ID provided." });
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             try

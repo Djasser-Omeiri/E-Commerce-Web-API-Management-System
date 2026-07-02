@@ -2,6 +2,7 @@
 using E_Commerce_Web_API.DTOs.Login;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,8 @@ namespace E_Commerce_Web_API.Controllers
             _token = token;
         }
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(RegisterDTO UserFromRequest)
         {
             var user = new ApplicationUser
@@ -46,6 +49,8 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login(LoginDTO UserFromRequest)
         {
             var user = await _userManager.FindByNameAsync(UserFromRequest.UserName);
@@ -63,6 +68,18 @@ namespace E_Commerce_Web_API.Controllers
                 Role = primaryRole,
                 token = _token.createToken(user, primaryRole)
             });
+        }
+
+        [HttpGet("Profile")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            string username = User.Identity.Name;
+
+            string id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            return Ok(new { Name = username, Id = id });
         }
     }
 }

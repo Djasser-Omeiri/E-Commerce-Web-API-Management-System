@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.DTOs.Category;
 using E_Commerce_Web_API.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_Commerce_Web_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -19,6 +21,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType<CategoryDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesAsync()
@@ -32,6 +35,7 @@ namespace E_Commerce_Web_API.Controllers
             return Ok(categoriesDTOs);
         }
         [HttpGet("{id}", Name = nameof(GetCategoryByIdAsync))]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType<CategoryDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,6 +54,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType<CategoryDTO>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
@@ -64,6 +69,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,6 +93,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCategoryAsync(int id)
