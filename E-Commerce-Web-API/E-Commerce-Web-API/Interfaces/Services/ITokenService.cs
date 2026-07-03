@@ -5,6 +5,6 @@ namespace E_Commerce_Web_API.Interfaces.Services
 {
     public interface ITokenService
     {
-        string createToken(ApplicationUser user, string role);
+        string createToken(User user, string role);
     }
 }

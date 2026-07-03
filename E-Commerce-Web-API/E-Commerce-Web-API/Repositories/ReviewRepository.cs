@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Web_API.Data;
 using E_Commerce_Web_API.DTOs.Review;
+using E_Commerce_Web_API.DTOs.User;
 using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,16 +16,10 @@ namespace E_Commerce_Web_API.Repositories
             _context = context;
         }
 
-        public async Task<Review> CreateReviewAsync(CreateReviewDTO ReviewDTO)
+        public async Task<Review> CreateReviewAsync(Review review)
         {
-            var Review = new Review
-            {
-                Comment = ReviewDTO.Comment,
-                ProductID = ReviewDTO.ProductID,
-                Rating = ReviewDTO.Rating
-            };
-            _context.Reviews.Add(Review);
-            return Review;
+            _context.Reviews.Add(review);
+            return review;
         }
 
         public async Task DeleteReviewAsync(Review Review)
@@ -36,13 +31,19 @@ namespace E_Commerce_Web_API.Repositories
         {
             return await _context.Reviews
                 .AsNoTracking()
+                .Include(r => r.User)
                 .Select(r => new ReviewDTO
                 {
                     ID = r.ID,
                     Comment = r.Comment,
                     Rating = r.Rating,
                     CreatedAt = r.CreatedAt,
-                    ProductName = r.Product.Name
+                    ProductName = r.Product.Name,
+                    User = new UserDTO
+                    {
+                        ID = r.User.Id,
+                        Username = r.User.UserName ?? string.Empty
+                    }
                 }).FirstOrDefaultAsync(r => r.ID == id);
         }
 
@@ -55,13 +56,19 @@ namespace E_Commerce_Web_API.Repositories
         {
             return await _context.Reviews
                 .AsNoTracking()
+                .Include(r => r.User)
                 .Select(r => new ReviewDTO
                 {
                     ID = r.ID,
                     Comment = r.Comment,
                     Rating = r.Rating,
                     CreatedAt = r.CreatedAt,
-                    ProductName = r.Product.Name
+                    ProductName = r.Product.Name,
+                    User = new UserDTO
+                    {
+                        ID = r.User.Id,
+                        Username = r.User.UserName ?? string.Empty
+                    }
                 }).ToListAsync();
         }
     }

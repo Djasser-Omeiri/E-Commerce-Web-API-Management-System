@@ -8,5 +8,7 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public int ProductID { get; set; }
         public Product Product { get; set; } = null!;
+        public string UserId { get; set; } = string.Empty;
+        public User User { get; set; } = null!;
     }
 }

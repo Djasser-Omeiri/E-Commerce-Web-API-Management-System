@@ -8,7 +8,7 @@ namespace E_Commerce_Web_API.Interfaces.Repositories
         Task<IEnumerable<ReviewDTO>> GetReviewsAsync();
         Task<ReviewDTO?> GetReviewByIdAsync(int id);
         Task<Review?> GetReviewEntityByIdAsync(int id);
-        Task<Review> CreateReviewAsync(CreateReviewDTO ReviewDTO);
+        Task<Review> CreateReviewAsync(Review review);
         Task DeleteReviewAsync(Review Review);
     }
 }

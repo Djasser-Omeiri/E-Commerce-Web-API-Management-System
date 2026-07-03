@@ -1,4 +1,5 @@
 ﻿using E_Commerce_Web_API.DTOs.OrderItem;
+using E_Commerce_Web_API.DTOs.User;
 using E_Commerce_Web_API.Models;
 
 namespace E_Commerce_Web_API.DTOs.Order
@@ -11,6 +12,7 @@ namespace E_Commerce_Web_API.DTOs.Order
         public decimal TotalPrice { get; set; }
 
         public string Status { get; set; } = string.Empty;
+        public UserDTO User { get; set; } = new UserDTO();
 
         public ICollection<OrderItemDTO> OrderItems { get; set; } = new List<OrderItemDTO>();
     }

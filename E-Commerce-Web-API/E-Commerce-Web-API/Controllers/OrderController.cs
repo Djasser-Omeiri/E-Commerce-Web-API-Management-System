@@ -22,7 +22,7 @@ namespace E_Commerce_Web_API.Controllers
             _orderService = orderService;
         }
         [HttpGet]
-        [ProducesResponseType<OrderDTO>(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<OrderDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersAsync()
@@ -55,7 +55,7 @@ namespace E_Commerce_Web_API.Controllers
             return Ok(orderDTO);
         }
         [HttpPost]
-        [ProducesResponseType<OrderDTO>(StatusCodes.Status201Created)]
+        [ProducesResponseType<Order>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Order>> CreateOrderAsync(CreateOrderDTO orderdto)
         {
@@ -69,6 +69,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteOrderAsync(int id)
@@ -83,7 +84,9 @@ namespace E_Commerce_Web_API.Controllers
             return NoContent();
         }
         [HttpPut("{id}/address")]
+        [ProducesResponseType<OrderDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateAddress(int id, [FromBody] UpdateOrderAddressDTO dto)
@@ -114,6 +117,8 @@ namespace E_Commerce_Web_API.Controllers
             }
         }
         [HttpPut("{id}/status")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType<OrderDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

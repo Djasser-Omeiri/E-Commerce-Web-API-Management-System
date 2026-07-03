@@ -36,7 +36,8 @@ builder.Services.AddSwaggerGen(options =>
             new OpenApiSecurityScheme
             {
                 Reference = new OpenApiReference
-                { Type = ReferenceType.SecurityScheme,
+                {
+                    Type = ReferenceType.SecurityScheme,
                 Id = "Bearer"
         }
     },
@@ -58,9 +59,9 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>();
 builder.Services.AddAuthentication(options =>
 {

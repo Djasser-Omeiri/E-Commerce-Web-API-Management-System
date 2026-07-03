@@ -23,7 +23,7 @@ namespace E_Commerce_Web_API.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [ProducesResponseType<ProductDTO>(StatusCodes.Status200OK)]
+        [ProducesResponseType<IEnumerable<ProductDTO>>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
         public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProductsAsync()
@@ -38,6 +38,7 @@ namespace E_Commerce_Web_API.Controllers
         }
 
         [HttpGet("{id}", Name = nameof(GetProductByIdAsync))]
+        [AllowAnonymous]
         [ProducesResponseType<ProductDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -57,8 +58,10 @@ namespace E_Commerce_Web_API.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        [ProducesResponseType<ProductDTO>(StatusCodes.Status201Created)]
+        [ProducesResponseType<Product>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<Product>> CreateProductAsync(CreateProductDTO productdto)
         {
             if (productdto is null)

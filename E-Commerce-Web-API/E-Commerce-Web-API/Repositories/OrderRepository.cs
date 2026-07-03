@@ -30,6 +30,7 @@ namespace E_Commerce_Web_API.Repositories
         {
             return await _context.Orders
                 .AsNoTracking()
+                .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .ToListAsync();
@@ -39,6 +40,7 @@ namespace E_Commerce_Web_API.Repositories
         {
             return await _context.Orders
                 .AsNoTracking()
+                .Include(o => o.User)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.Product)
                 .FirstOrDefaultAsync(o => o.ID == id);

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_API.Data
 {
-    public class AppDbContext : IdentityDbContext<ApplicationUser>
+    public class AppDbContext : IdentityDbContext<User>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {

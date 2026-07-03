@@ -15,7 +15,7 @@ namespace E_Commerce_Web_API.Services
         {
             _configuration = configuration;
         }
-        public string createToken(ApplicationUser user,string role)
+        public string createToken(User user,string role)
         {
             var authClaims = new List<Claim>
         {

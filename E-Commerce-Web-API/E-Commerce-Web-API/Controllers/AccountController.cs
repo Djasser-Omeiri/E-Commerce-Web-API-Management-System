@@ -18,10 +18,10 @@ namespace E_Commerce_Web_API.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ITokenService _token;
 
-        public AccountController(UserManager<ApplicationUser> userManager, ITokenService token)
+        public AccountController(UserManager<User> userManager, ITokenService token)
         {
             _userManager = userManager;
             _token = token;
@@ -31,7 +31,7 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register(RegisterDTO UserFromRequest)
         {
-            var user = new ApplicationUser
+            var user = new User
             {
                 UserName = UserFromRequest.UserName,
                 Email = UserFromRequest.Email
@@ -55,7 +55,7 @@ namespace E_Commerce_Web_API.Controllers
         {
             var user = await _userManager.FindByNameAsync(UserFromRequest.UserName);
 
-            if (user is null && !await _userManager.CheckPasswordAsync(user, UserFromRequest.Password))
+            if (user is null || !await _userManager.CheckPasswordAsync(user, UserFromRequest.Password))
             {
                 return Unauthorized("Invalid credentials.");
             }

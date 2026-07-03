@@ -22,7 +22,7 @@ namespace E_Commerce_Web_API.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [ProducesResponseType<CategoryDTO>(StatusCodes.Status200OK)]
+        [ProducesResponseType<IEnumerable<CategoryDTO>>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategoriesAsync()
         {
@@ -35,7 +35,7 @@ namespace E_Commerce_Web_API.Controllers
             return Ok(categoriesDTOs);
         }
         [HttpGet("{id}", Name = nameof(GetCategoryByIdAsync))]
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         [ProducesResponseType<CategoryDTO>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,9 +55,10 @@ namespace E_Commerce_Web_API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        [ProducesResponseType<CategoryDTO>(StatusCodes.Status201Created)]
+        [ProducesResponseType<Category>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<Category>> CreateCategoryAsync(CreateCategoryDTO categorydto)
         {
             if (categorydto is null)
@@ -73,6 +74,7 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult> UpdateCategoryAsync(int id, UpdateCategoryDTO categorydto)
         {
             if (id < 0)
