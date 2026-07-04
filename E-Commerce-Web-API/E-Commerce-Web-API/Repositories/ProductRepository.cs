@@ -28,6 +28,8 @@ namespace E_Commerce_Web_API.Repositories
         {
             return await _context.Products
                 .AsNoTracking()
+                .Include(p => p.Stock)
+                .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.ID == id);
         }
 

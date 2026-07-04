@@ -48,7 +48,7 @@ namespace E_Commerce_Web_API.Services
                 Name = product.Name,
                 Price = product.Price,
                 CategoryName = product.Category.Name,
-                IsAvailable = product.Stock.Quantity > 0
+                IsAvailable = product.Stock?.Quantity > 0
             };
         }
 
@@ -84,7 +84,7 @@ namespace E_Commerce_Web_API.Services
                 Name = p.Name,
                 Price = p.Price,
                 CategoryName = p.Category.Name,
-                IsAvailable = p.Stock.Quantity > 0
+                IsAvailable = p.Stock?.Quantity > 0
             });
         }
     }
