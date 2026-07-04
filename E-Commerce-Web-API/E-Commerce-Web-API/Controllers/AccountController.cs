@@ -77,7 +77,7 @@ namespace E_Commerce_Web_API.Controllers
         {
             string username = User.Identity.Name;
 
-            string id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             return Ok(new { Name = username, Id = id });
         }

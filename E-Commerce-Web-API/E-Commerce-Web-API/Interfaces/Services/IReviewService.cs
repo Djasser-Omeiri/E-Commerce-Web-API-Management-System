@@ -5,7 +5,7 @@ namespace E_Commerce_Web_API.Interfaces.Services
 {
     public interface IReviewService
     {
-        Task<IEnumerable<ReviewDTO>> GetReviewsAsync();
+        Task<IEnumerable<ReviewDTO>> GetReviewsFilterAsync(string? userId = null);
         Task<ReviewDTO?> GetReviewByIdAsync(int id);
         Task<Review?> GetReviewEntityByIdAsync(int id);
         Task<Review> CreateReviewAsync(CreateReviewDTO reviewDTO, string userId);

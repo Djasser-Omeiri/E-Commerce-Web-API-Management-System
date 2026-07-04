@@ -3,7 +3,6 @@ using E_Commerce_Web_API.DTOs.User;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_API.Services
 {
@@ -44,7 +43,20 @@ namespace E_Commerce_Web_API.Services
 
         public async Task<ReviewDTO?> GetReviewByIdAsync(int id)
         {
-            return await _unitOfWork.Reviews.GetReviewByIdAsync(id);
+            var review = await _unitOfWork.Reviews.GetReviewByIdAsync(id);
+            return review == null ? null : new ReviewDTO
+            {
+                ID = review.ID,
+                Comment = review.Comment,
+                Rating = review.Rating,
+                CreatedAt = review.CreatedAt,
+                ProductName = review.Product?.Name ?? string.Empty,
+                User = new UserDTO
+                {
+                    ID = review.User.Id,
+                    Username = review.User.UserName!
+                }
+            };
         }
 
         public async Task<Review?> GetReviewEntityByIdAsync(int id)
@@ -52,9 +64,22 @@ namespace E_Commerce_Web_API.Services
             return await _unitOfWork.Reviews.GetReviewEntityByIdAsync(id);
         }
 
-        public async Task<IEnumerable<ReviewDTO>> GetReviewsAsync()
+        public async Task<IEnumerable<ReviewDTO>> GetReviewsFilterAsync(string? userId = null)
         {
-            return await _unitOfWork.Reviews.GetReviewsAsync();
+            var reviews = await _unitOfWork.Reviews.GetReviewsFilterAsync(userId);
+            return reviews.Select(r => new ReviewDTO
+            {
+                ID = r.ID,
+                Comment = r.Comment,
+                Rating = r.Rating,
+                CreatedAt = r.CreatedAt,
+                ProductName = r.Product?.Name ?? string.Empty,
+                User = new UserDTO
+                {
+                    ID = r.User.Id,
+                    Username = r.User.UserName!
+                }
+            });
         }
 
         public async Task<IEnumerable<ReviewDTO>> GetReviewsByProductIdAsync(int productId)
@@ -63,8 +88,22 @@ namespace E_Commerce_Web_API.Services
             if (product == null)
                 throw new ArgumentException("Product not found");
 
-            var allReviews = await _unitOfWork.Reviews.GetReviewsAsync();
-            return allReviews.Where(r => r.ProductName == product.Name);
+            var allReviews = await _unitOfWork.Reviews.GetReviewsFilterAsync();
+            return allReviews
+                .Where(r => r.ProductID == productId)
+                .Select(r => new ReviewDTO
+                {
+                    ID = r.ID,
+                    Comment = r.Comment,
+                    Rating = r.Rating,
+                    CreatedAt = r.CreatedAt,
+                    ProductName = r.Product?.Name ?? string.Empty,
+                    User = new UserDTO
+                    {
+                        ID = r.User.Id,
+                        Username = r.User.UserName!
+                    }
+                });
         }
 
         public async Task<bool> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO)

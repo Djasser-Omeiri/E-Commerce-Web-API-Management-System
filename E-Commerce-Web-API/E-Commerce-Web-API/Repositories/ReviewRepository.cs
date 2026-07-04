@@ -1,6 +1,4 @@
 ﻿using E_Commerce_Web_API.Data;
-using E_Commerce_Web_API.DTOs.Review;
-using E_Commerce_Web_API.DTOs.User;
 using E_Commerce_Web_API.Interfaces.Repositories;
 using E_Commerce_Web_API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -22,29 +20,18 @@ namespace E_Commerce_Web_API.Repositories
             return review;
         }
 
-        public async Task DeleteReviewAsync(Review Review)
+        public async Task DeleteReviewAsync(Review review)
         {
-            _context.Reviews.Remove(Review);
+            _context.Reviews.Remove(review);
         }
 
-        public async Task<ReviewDTO?> GetReviewByIdAsync(int id)
+        public async Task<Review?> GetReviewByIdAsync(int id)
         {
             return await _context.Reviews
                 .AsNoTracking()
                 .Include(r => r.User)
-                .Select(r => new ReviewDTO
-                {
-                    ID = r.ID,
-                    Comment = r.Comment,
-                    Rating = r.Rating,
-                    CreatedAt = r.CreatedAt,
-                    ProductName = r.Product.Name,
-                    User = new UserDTO
-                    {
-                        ID = r.User.Id,
-                        Username = r.User.UserName ?? string.Empty
-                    }
-                }).FirstOrDefaultAsync(r => r.ID == id);
+                .Include(r => r.Product)
+                .FirstOrDefaultAsync(r => r.ID == id);
         }
 
         public async Task<Review?> GetReviewEntityByIdAsync(int id)
@@ -52,24 +39,15 @@ namespace E_Commerce_Web_API.Repositories
             return await _context.Reviews.FirstOrDefaultAsync(r => r.ID == id);
         }
 
-        public async Task<IEnumerable<ReviewDTO>> GetReviewsAsync()
+        public async Task<IEnumerable<Review>> GetReviewsFilterAsync(string? userId = null)
         {
             return await _context.Reviews
                 .AsNoTracking()
                 .Include(r => r.User)
-                .Select(r => new ReviewDTO
-                {
-                    ID = r.ID,
-                    Comment = r.Comment,
-                    Rating = r.Rating,
-                    CreatedAt = r.CreatedAt,
-                    ProductName = r.Product.Name,
-                    User = new UserDTO
-                    {
-                        ID = r.User.Id,
-                        Username = r.User.UserName ?? string.Empty
-                    }
-                }).ToListAsync();
+                .Include(r => r.Product)
+                .Where(o => userId == null || o.UserId == userId)
+                .ToListAsync();
         }
     }
 }
+

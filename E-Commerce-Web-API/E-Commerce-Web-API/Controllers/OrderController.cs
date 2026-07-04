@@ -28,7 +28,10 @@ namespace E_Commerce_Web_API.Controllers
 
         public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrdersAsync()
         {
-            var ordersDTOs = await _orderService.GetOrdersAsync();
+            string? filterUserId = User.IsInRole("Admin")
+                ? null
+                : User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var ordersDTOs = await _orderService.GetOrdersFilterAsync(filterUserId);
             if (ordersDTOs is null)
             {
                 return NotFound("Orders not found");

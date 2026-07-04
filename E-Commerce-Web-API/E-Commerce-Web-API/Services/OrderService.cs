@@ -92,9 +92,9 @@ namespace E_Commerce_Web_API.Services
             return await _unitOfWork.Orders.GetOrderEntityByIdAsync(id);
         }
 
-        public async Task<IEnumerable<OrderDTO>> GetOrdersAsync()
+        public async Task<IEnumerable<OrderDTO>> GetOrdersFilterAsync(string? userId = null)
         {
-            var orders = await _unitOfWork.Orders.GetOrdersAsync();
+            var orders = await _unitOfWork.Orders.GetOrdersFilterAsync(userId);
             return orders.Select(o => new OrderDTO
             {
                 ID = o.ID,
@@ -108,7 +108,12 @@ namespace E_Commerce_Web_API.Services
                     Quantity = oi.Quantity,
                     PriceAtPurchase = oi.PriceAtPurchase,
                     ProductName = oi.Product?.Name ?? string.Empty
-                }).ToList()
+                }).ToList(),
+                User = new UserDTO
+                {
+                    ID = o.UserId,
+                    Username = o.User.UserName!
+                }
             });
         }
         public async Task<OrderDTO?> UpdateOrderAddressAsync(int id, UpdateOrderAddressDTO dto)

@@ -40,6 +40,8 @@ namespace E_Commerce_Web_API.Repositories
         {
             var productsDTOs = await _context.Products
                .AsNoTracking()
+               .Include(p => p.Stock)
+               .Include(p => p.Category)
                .ToListAsync();
             return productsDTOs;
         }

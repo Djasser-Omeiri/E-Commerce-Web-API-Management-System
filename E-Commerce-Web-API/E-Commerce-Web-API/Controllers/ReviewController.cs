@@ -26,7 +26,11 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType<IEnumerable<ReviewDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetReviews()
         {
-            var reviews = await _reviewService.GetReviewsAsync();
+            string? filterUserId = User.IsInRole("Admin")
+                ? null
+                : User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var reviews = await _reviewService.GetReviewsFilterAsync(filterUserId);
             if (reviews == null)
             {
                 return NotFound("No reviews found");
