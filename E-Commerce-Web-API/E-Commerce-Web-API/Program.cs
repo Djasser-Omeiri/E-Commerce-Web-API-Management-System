@@ -38,8 +38,8 @@ builder.Services.AddSwaggerGen(options =>
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-        }
+                    Id = "Bearer"
+                }
     },
             new string[]{}
     }
@@ -89,6 +89,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+// Seed the roles
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await DbSeeder.SeedRolesAsync(services);
 }
 
 app.UseHttpsRedirection();
