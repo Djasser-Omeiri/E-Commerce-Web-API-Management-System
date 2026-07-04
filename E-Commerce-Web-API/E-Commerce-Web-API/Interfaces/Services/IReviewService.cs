@@ -10,7 +10,7 @@ namespace E_Commerce_Web_API.Interfaces.Services
         Task<Review?> GetReviewEntityByIdAsync(int id);
         Task<Review> CreateReviewAsync(CreateReviewDTO reviewDTO, string userId);
         Task<bool> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO);
-        Task<bool> DeleteReviewAsync(int id);
+        Task<bool> DeleteReviewAsync(Review review);
         Task<IEnumerable<ReviewDTO>> GetReviewsByProductIdAsync(int productId);
     }
 }

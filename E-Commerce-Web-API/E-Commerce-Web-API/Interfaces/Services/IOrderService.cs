@@ -8,7 +8,7 @@ namespace E_Commerce_Web_API.Interfaces.Services
         Task<IEnumerable<OrderDTO>> GetOrdersAsync();
         Task<OrderDTO?> GetOrderByIdAsync(int id);
         Task<Order?> GetOrderEntityByIdAsync(int id);
-        Task<Order> CreateOrderAsync(CreateOrderDTO orderDTO);
+        Task<Order> CreateOrderAsync(CreateOrderDTO orderDTO, string userId);
         Task DeleteOrderAsync(Order order);
         Task<OrderDTO?> UpdateOrderAddressAsync(int id, UpdateOrderAddressDTO dto);
         Task<OrderDTO?> UpdateOrderStatusAsync(int id, UpdateOrderStatusDTO dto);

@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Web_API.DTOs.Order;
 using E_Commerce_Web_API.DTOs.OrderItem;
+using E_Commerce_Web_API.DTOs.User;
 using E_Commerce_Web_API.Enums;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
@@ -20,12 +21,13 @@ namespace E_Commerce_Web_API.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Order> CreateOrderAsync(CreateOrderDTO orderDTO)
+        public async Task<Order> CreateOrderAsync(CreateOrderDTO orderDTO, string userId)
         {
             var order = new Order
             {
                 ShippingAddress = orderDTO.ShippingAddress,
-                OrderItems = new List<OrderItem>()
+                OrderItems = new List<OrderItem>(),
+                UserId = userId
             };
 
             foreach (var item in orderDTO.Items)
@@ -76,7 +78,12 @@ namespace E_Commerce_Web_API.Services
                     Quantity = oi.Quantity,
                     PriceAtPurchase = oi.PriceAtPurchase,
                     ProductName = oi.Product?.Name ?? string.Empty
-                }).ToList()
+                }).ToList(),
+                User = new UserDTO
+                {
+                    ID = order.UserId,
+                    Username = order.User.UserName!
+                }
             };
         }
 
@@ -133,7 +140,12 @@ namespace E_Commerce_Web_API.Services
                 {
                     ProductName = oi.Product?.Name ?? "Unknown Product",
                     Quantity = oi.Quantity
-                }).ToList()
+                }).ToList(),
+                User = new UserDTO
+                {
+                    ID = order.UserId,
+                    Username = order.User.UserName!
+                }
             };
 
             return responseDto;
@@ -174,7 +186,12 @@ namespace E_Commerce_Web_API.Services
                 {
                     ProductName = oi.Product?.Name ?? "Unknown Product",
                     Quantity = oi.Quantity
-                }).ToList()
+                }).ToList(),
+                User = new UserDTO
+                {
+                    ID = order.UserId,
+                    Username = order.User.UserName!
+                }
             };
 
             return responseDto;

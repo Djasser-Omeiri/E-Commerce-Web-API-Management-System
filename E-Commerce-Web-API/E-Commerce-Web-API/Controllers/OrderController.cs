@@ -7,6 +7,7 @@ using E_Commerce_Web_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace E_Commerce_Web_API.Controllers
 {
@@ -51,6 +52,10 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return NotFound("Order not found");
             }
+            if (!User.CanAccess(orderDTO.User.ID))
+            {
+                return Forbid();
+            }
 
             return Ok(orderDTO);
         }
@@ -59,11 +64,12 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Order>> CreateOrderAsync(CreateOrderDTO orderdto)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (orderdto is null)
             {
                 return BadRequest("Invalid order data");
             }
-            var order = await _orderService.CreateOrderAsync(orderdto);
+            var order = await _orderService.CreateOrderAsync(orderdto, userId!);
 
             return CreatedAtRoute(nameof(GetOrderByIdAsync), new { id = order.ID }, order);
         }
@@ -79,7 +85,11 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return NotFound("Order not found");
             }
-
+            if (!User.CanAccess(order.UserId))
+            {
+                return Forbid();
+            }
+            // Add the delete logic here based on enum
             await _orderService.DeleteOrderAsync(order);
             return NoContent();
         }
@@ -95,7 +105,15 @@ namespace E_Commerce_Web_API.Controllers
             {
                 return BadRequest(new { Message = "Invalid order ID provided." });
             }
-
+            var order = await _orderService.GetOrderByIdAsync(id);
+            if (order is null)
+            {
+                return NotFound(new { Message = $"Order with ID {id} was not found." });
+            }
+            if (!User.CanAccess(order.User.ID))
+            {
+                return Forbid();
+            }
             try
             {
                 OrderDTO? updatedOrder = await _orderService.UpdateOrderAddressAsync(id, dto);

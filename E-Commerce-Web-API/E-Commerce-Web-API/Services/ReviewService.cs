@@ -27,8 +27,7 @@ namespace E_Commerce_Web_API.Services
                 Comment = reviewDTO.Comment,
                 Rating = reviewDTO.Rating,
                 ProductID = reviewDTO.ProductID,
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow
+                UserId = userId
             };
 
             await _unitOfWork.Reviews.CreateReviewAsync(review);
@@ -36,12 +35,8 @@ namespace E_Commerce_Web_API.Services
             return review;
         }
 
-        public async Task<bool> DeleteReviewAsync(int id)
+        public async Task<bool> DeleteReviewAsync(Review review)
         {
-            var review = await _unitOfWork.Reviews.GetReviewEntityByIdAsync(id);
-            if (review == null)
-                return false;
-
             await _unitOfWork.Reviews.DeleteReviewAsync(review);
             await _unitOfWork.CompleteAsync();
             return true;

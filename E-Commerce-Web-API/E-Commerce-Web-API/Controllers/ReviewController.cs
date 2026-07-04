@@ -1,6 +1,7 @@
 ﻿using E_Commerce_Web_API.DTOs.Review;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
+using E_Commerce_Web_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace E_Commerce_Web_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ReviewController : ControllerBase
     {
         private readonly IReviewService _reviewService;
@@ -25,6 +27,11 @@ namespace E_Commerce_Web_API.Controllers
         public async Task<IActionResult> GetReviews()
         {
             var reviews = await _reviewService.GetReviewsAsync();
+            if (reviews == null)
+            {
+                return NotFound("No reviews found");
+            }
+
             return Ok(reviews);
         }
 
@@ -35,7 +42,11 @@ namespace E_Commerce_Web_API.Controllers
         {
             var review = await _reviewService.GetReviewByIdAsync(id);
             if (review == null)
-                return NotFound();
+                return NotFound("Review not found");
+
+            if (!User.CanAccess(review.User.ID))
+                return Forbid();
+
             return Ok(review);
         }
 
@@ -64,7 +75,7 @@ namespace E_Commerce_Web_API.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId))
                     return Unauthorized("User ID not found in token");
 
@@ -83,6 +94,17 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateReview(int id, [FromBody] UpdateReviewDTO reviewDTO)
         {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid Review ID");
+            }
+            var existingReview = await _reviewService.GetReviewByIdAsync(id);
+            if (existingReview == null)
+                return NotFound("Review not found");
+            if (!User.CanAccess(existingReview.User.ID))
+            {
+                return Forbid();
+            }
             try
             {
                 var success = await _reviewService.UpdateReviewAsync(id, reviewDTO);
@@ -101,7 +123,16 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteReview(int id)
         {
-            var success = await _reviewService.DeleteReviewAsync(id);
+            var review = await _reviewService.GetReviewEntityByIdAsync(id);
+            if (review == null)
+                return NotFound("Review not found");
+
+            if (!User.CanAccess(review.UserId))
+            {
+                return Forbid();
+            }
+
+            var success = await _reviewService.DeleteReviewAsync(review);
             if (!success)
                 return NotFound();
             return NoContent();
