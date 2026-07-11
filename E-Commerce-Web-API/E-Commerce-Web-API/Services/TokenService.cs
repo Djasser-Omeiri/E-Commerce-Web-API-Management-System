@@ -15,7 +15,7 @@ namespace E_Commerce_Web_API.Services
         {
             _configuration = configuration;
         }
-        public string createToken(User user,string role)
+        public string createToken(User user, string role)
         {
             var authClaims = new List<Claim>
         {
@@ -29,7 +29,7 @@ namespace E_Commerce_Web_API.Services
             var tokenObject = new JwtSecurityToken(
                issuer: _configuration["JWT:Issuer"],
               audience: _configuration["JWT:Audience"],
-              expires: DateTime.UtcNow.AddHours(3),
+              expires: DateTime.UtcNow.AddMinutes(30),
               claims: authClaims,
               signingCredentials: creds
 
