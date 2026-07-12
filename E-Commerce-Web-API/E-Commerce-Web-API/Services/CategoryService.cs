@@ -36,12 +36,12 @@ namespace E_Commerce_Web_API.Services
         public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
         {
             var categories = await _unitOfWork.Categories.GetCategoriesAsync();
-            return categories.Select(c => new CategoryDTO
+            return await categories.Select(c => new CategoryDTO
             {
                 ID = c.ID,
                 Name = c.Name,
                 ProductsCount = c.Products.Count()
-            });
+            }).ToListAsync();
         }
 
         public async Task<CategoryDTO?> GetCategoryByIdAsync(int id)

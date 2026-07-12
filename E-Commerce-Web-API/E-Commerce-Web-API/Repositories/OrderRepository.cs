@@ -26,15 +26,11 @@ namespace E_Commerce_Web_API.Repositories
         }
 
 
-        public async Task<IEnumerable<Order>> GetOrdersFilterAsync(string? userId = null)
+        public async Task<IQueryable<Order>> GetOrdersFilterAsync(string? userId = null)
         {
-            return await _context.Orders
+            return _context.Orders
                 .AsNoTracking()
-                .Include(o => o.User)
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.Product)
-                .Where(o => userId == null || o.UserId == userId)
-                .ToListAsync();
+                .Where(o => userId == null || o.UserId == userId);
         }
 
         public async Task<Order?> GetOrderByIdAsync(int id)

@@ -78,14 +78,14 @@ namespace E_Commerce_Web_API.Services
         public async Task<IEnumerable<ProductDTO>> GetProductsAsync()
         {
             var products = await _unitOfWork.Products.GetProductsAsync();
-            return products.Select(p => new ProductDTO
+            return await products.Select(p => new ProductDTO
             {
                 ID = p.ID,
                 Name = p.Name,
                 Price = p.Price,
                 CategoryName = p.Category.Name,
-                IsAvailable = p.Stock?.Quantity > 0
-            });
+                IsAvailable = p.Stock.Quantity > 0
+            }).ToListAsync();
         }
     }
 }

@@ -25,11 +25,10 @@ namespace E_Commerce_Web_API.Repositories
             _context.Categories.Remove(category);
         }
 
-        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        public async Task<IQueryable<Category>> GetCategoriesAsync()
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .ToListAsync();
+            return _context.Categories
+                .AsNoTracking();
         }
 
         public async Task<Category?> GetCategoryByIdAsync(int id)

@@ -38,14 +38,10 @@ namespace E_Commerce_Web_API.Repositories
             return await _context.Products.Include(p => p.Stock).FirstOrDefaultAsync(p => p.ID == id);
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync()
+        public async Task<IQueryable<Product>> GetProductsAsync()
         {
-            var productsDTOs = await _context.Products
-               .AsNoTracking()
-               .Include(p => p.Stock)
-               .Include(p => p.Category)
-               .ToListAsync();
-            return productsDTOs;
+            return _context.Products
+               .AsNoTracking();
         }
     }
 }

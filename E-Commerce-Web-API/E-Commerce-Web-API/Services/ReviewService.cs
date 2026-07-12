@@ -3,6 +3,7 @@ using E_Commerce_Web_API.DTOs.User;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_API.Services
 {
@@ -67,19 +68,19 @@ namespace E_Commerce_Web_API.Services
         public async Task<IEnumerable<ReviewDTO>> GetReviewsFilterAsync(string? userId = null)
         {
             var reviews = await _unitOfWork.Reviews.GetReviewsFilterAsync(userId);
-            return reviews.Select(r => new ReviewDTO
+            return await reviews.Select(r => new ReviewDTO
             {
                 ID = r.ID,
                 Comment = r.Comment,
                 Rating = r.Rating,
                 CreatedAt = r.CreatedAt,
-                ProductName = r.Product?.Name ?? string.Empty,
+                ProductName = r.Product.Name ?? string.Empty,
                 User = new UserDTO
                 {
                     ID = r.User.Id,
                     Username = r.User.UserName!
                 }
-            });
+            }).ToListAsync();
         }
 
         public async Task<IEnumerable<ReviewDTO>> GetReviewsByProductIdAsync(int productId)
@@ -89,7 +90,7 @@ namespace E_Commerce_Web_API.Services
                 throw new ArgumentException("Product not found");
 
             var allReviews = await _unitOfWork.Reviews.GetReviewsFilterAsync();
-            return allReviews
+            return await allReviews
                 .Where(r => r.ProductID == productId)
                 .Select(r => new ReviewDTO
                 {
@@ -97,13 +98,13 @@ namespace E_Commerce_Web_API.Services
                     Comment = r.Comment,
                     Rating = r.Rating,
                     CreatedAt = r.CreatedAt,
-                    ProductName = r.Product?.Name ?? string.Empty,
+                    ProductName = r.Product.Name ?? string.Empty,
                     User = new UserDTO
                     {
                         ID = r.User.Id,
                         Username = r.User.UserName!
                     }
-                });
+                }).ToListAsync();
         }
 
         public async Task<bool> UpdateReviewAsync(int id, UpdateReviewDTO reviewDTO)

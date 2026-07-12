@@ -5,6 +5,7 @@ using E_Commerce_Web_API.Enums;
 using E_Commerce_Web_API.Interfaces;
 using E_Commerce_Web_API.Interfaces.Services;
 using E_Commerce_Web_API.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +96,7 @@ namespace E_Commerce_Web_API.Services
         public async Task<IEnumerable<OrderDTO>> GetOrdersFilterAsync(string? userId = null)
         {
             var orders = await _unitOfWork.Orders.GetOrdersFilterAsync(userId);
-            return orders.Select(o => new OrderDTO
+            return await orders.Select(o => new OrderDTO
             {
                 ID = o.ID,
                 OrderTime = o.OrderTime,
@@ -107,14 +108,14 @@ namespace E_Commerce_Web_API.Services
                     ID = oi.ID,
                     Quantity = oi.Quantity,
                     PriceAtPurchase = oi.PriceAtPurchase,
-                    ProductName = oi.Product?.Name ?? string.Empty
+                    ProductName = oi.Product.Name ?? string.Empty
                 }).ToList(),
                 User = new UserDTO
                 {
                     ID = o.UserId,
                     Username = o.User.UserName!
                 }
-            });
+            }).ToListAsync();
         }
         public async Task<OrderDTO?> UpdateOrderAddressAsync(int id, UpdateOrderAddressDTO dto)
         {

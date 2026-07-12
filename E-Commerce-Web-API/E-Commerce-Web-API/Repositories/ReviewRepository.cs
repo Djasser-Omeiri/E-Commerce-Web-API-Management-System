@@ -39,14 +39,11 @@ namespace E_Commerce_Web_API.Repositories
             return await _context.Reviews.FirstOrDefaultAsync(r => r.ID == id);
         }
 
-        public async Task<IEnumerable<Review>> GetReviewsFilterAsync(string? userId = null)
+        public async Task<IQueryable<Review>> GetReviewsFilterAsync(string? userId = null)
         {
-            return await _context.Reviews
+            return _context.Reviews
                 .AsNoTracking()
-                .Include(r => r.User)
-                .Include(r => r.Product)
-                .Where(o => userId == null || o.UserId == userId)
-                .ToListAsync();
+                .Where(o => userId == null || o.UserId == userId);
         }
     }
 }

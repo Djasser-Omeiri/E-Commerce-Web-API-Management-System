@@ -5,7 +5,7 @@ namespace E_Commerce_Web_API.Interfaces.Repositories
 {
     public interface ICategoryRepository
     {
-        Task<IEnumerable<Category>> GetCategoriesAsync();
+        Task<IQueryable<Category>> GetCategoriesAsync();
         Task<Category?> GetCategoryByIdAsync(int id);
         Task<Category?> GetCategoryEntityByIdAsync(int id);
         Task<Category> CreateCategoryAsync(Category category);
