@@ -1,7 +1,9 @@
-﻿namespace E_Commerce_Web_API.DTOs.Order
+﻿using E_Commerce_Web_API.Enums;
+
+namespace E_Commerce_Web_API.DTOs.Order
 {
     public class UpdateOrderStatusDTO
     {
-        public string NewStatus { get; set; } = string.Empty;
+        public eOrderStatus NewStatus { get; set; }
     }
 }

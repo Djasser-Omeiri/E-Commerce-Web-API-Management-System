@@ -166,18 +166,12 @@ namespace E_Commerce_Web_API.Services
                 return null;
             }
 
-            eOrderStatus newStatus;
-            if (!Enum.TryParse<eOrderStatus>(dto.NewStatus, true, out newStatus))
-            {
-                throw new ArgumentException($"'{dto.NewStatus}' is not a valid order status.");
-            }
-
             if (order.Status == eOrderStatus.Cancelled || order.Status == eOrderStatus.Delivered)
             {
                 throw new InvalidOperationException("Cannot modify the status of an order that has already been canceled or delivered.");
             }
 
-            order.Status = newStatus;
+            order.Status = dto.NewStatus;
 
             await _unitOfWork.CompleteAsync();
 

@@ -22,12 +22,26 @@ namespace E_Commerce_Web_API.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _token;
+        private readonly ILogger<AccountController> _logger;
 
-        public AccountController(UserManager<User> userManager, ITokenService token)
+        public AccountController(UserManager<User> userManager, ITokenService token, ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _token = token;
+            _logger = logger;
         }
+
+        [HttpGet("Profile")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            string username = User.Identity.Name;
+            string id = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            return Ok(new { Name = username, Id = id });
+        }
+
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -43,6 +57,8 @@ namespace E_Commerce_Web_API.Controllers
 
             if (!result.Succeeded)
             {
+                _logger.LogWarning("Registration failed at : {Time}. ",
+                    DateTime.UtcNow);
                 return BadRequest(result.Errors);
             }
             await _userManager.AddToRoleAsync(user, "User");
@@ -57,9 +73,11 @@ namespace E_Commerce_Web_API.Controllers
         public async Task<IActionResult> Login(LoginDTO UserFromRequest)
         {
             var user = await _userManager.FindByNameAsync(UserFromRequest.UserName);
-
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             if (user is null || !await _userManager.CheckPasswordAsync(user, UserFromRequest.Password))
             {
+                _logger.LogWarning("Invalid login attempt for username: {Username} from IP: {IP} at : {Time}",
+                    UserFromRequest.UserName, ipAddress, DateTime.UtcNow);
                 return Unauthorized("Invalid credentials.");
             }
             var roles = await _userManager.GetRolesAsync(user);
@@ -94,8 +112,11 @@ namespace E_Commerce_Web_API.Controllers
         public async Task<IActionResult> Refresh(RefreshRequestDTO request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             if (user is null)
             {
+                _logger.LogWarning("Token refresh failed - user not found. Username: {Username}, IP: {IP} at : {Time}",
+                    request.UserName, ipAddress, DateTime.UtcNow);
                 return Unauthorized("Invalid refresh request.");
             }
 
@@ -103,6 +124,8 @@ namespace E_Commerce_Web_API.Controllers
 
             if (savedToken is null || savedToken != request.RefreshToken)
             {
+                _logger.LogWarning("Token refresh failed - invalid or expired token for username: {Username}, IP: {IP} at : {Time}",
+                    request.UserName, ipAddress, DateTime.UtcNow);
                 return Unauthorized("Invalid or expired refresh token.");
             }
 
@@ -132,10 +155,12 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> Logout(LogoutRequestDTO request)
         {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var user = await _userManager.FindByNameAsync(request.UserName);
 
             if (user is null)
             {
+                _logger.LogWarning("Logout - user not found. Username: {Username}, IP: {IP} at : {Time}", request.UserName, ipAddress, DateTime.UtcNow);
                 return Ok(new { Message = "Logged out successfully." });
             }
 
@@ -149,16 +174,5 @@ namespace E_Commerce_Web_API.Controllers
             return Ok(new { Message = "Logged out successfully." });
         }
 
-        [HttpGet("Profile")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetMyProfile()
-        {
-            string username = User.Identity.Name;
-
-            string id = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
-            return Ok(new { Name = username, Id = id });
-        }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace E_Commerce_Web_API.Controllers
 {
@@ -16,9 +17,11 @@ namespace E_Commerce_Web_API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly ILogger<ProductController> _logger;
+        public ProductController(IProductService productService, ILogger<ProductController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -31,6 +34,7 @@ namespace E_Commerce_Web_API.Controllers
             var productsDTOs = await _productService.GetProductsAsync();
             if (productsDTOs is null)
             {
+                _logger.LogWarning("No products found");
                 return NotFound("Products not found");
             }
 
@@ -46,11 +50,13 @@ namespace E_Commerce_Web_API.Controllers
         {
             if (id < 0)
             {
+                _logger.LogWarning("Invalid product ID requested: {ProductId}", id);
                 return BadRequest("Invalid product ID");
             }
             var productDTO = await _productService.GetProductByIdAsync(id);
             if (productDTO is null)
             {
+                _logger.LogWarning("Product not found. ID: {ProductId}", id);
                 return NotFound("Product not found");
             }
 
@@ -64,8 +70,11 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<Product>> CreateProductAsync(CreateProductDTO productdto)
         {
+            var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("CreateProductAsync called by admin: {AdminId}. Product: {ProductName} at {Time}", adminId, productdto.Name, DateTime.UtcNow);
             if (productdto is null)
             {
+                _logger.LogWarning("CreateProductAsync failed - invalid product data. Admin: {AdminId} at {Time}", adminId, DateTime.UtcNow);
                 return BadRequest("Invalid product data");
             }
             var product = await _productService.CreateProductAsync(productdto);
@@ -80,17 +89,26 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateProductAsync(int id, UpdateProductDTO productdto)
         {
+            var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("UpdateProductAsync called by admin: {AdminId} for product ID: {ProductId} at {Time}", adminId, id, DateTime.UtcNow);
             if (id < 0)
+            {
+                _logger.LogWarning("UpdateProductAsync failed - invalid product ID: {ProductId}, Admin: {AdminId} at {Time}", id, adminId, DateTime.UtcNow);
                 return BadRequest("Invalid product ID");
+            }
 
             try
             {
                 var updated = await _productService.UpdateProductAsync(id, productdto);
                 if (!updated)
+                {
+                    _logger.LogWarning("UpdateProductAsync failed - product not found. ID: {ProductId}, Admin: {AdminId} at {Time}", id, adminId, DateTime.UtcNow);
                     return NotFound("Product not found");
+                }
             }
             catch (ArgumentException ex)
             {
+                _logger.LogError("UpdateProductAsync error - {Error}, ID: {ProductId}, Admin: {AdminId} at {Time}", ex.Message, id, adminId, DateTime.UtcNow);
                 return BadRequest(ex.Message);
             }
 
@@ -103,9 +121,14 @@ namespace E_Commerce_Web_API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteProductAsync(int id)
         {
+            var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            _logger.LogInformation("DeleteProductAsync called by admin: {AdminId} for product ID: {ProductId} at {Time}", adminId, id, DateTime.UtcNow);
             var deleted = await _productService.DeleteProductAsync(id);
             if (!deleted)
+            {
+                _logger.LogWarning("DeleteProductAsync failed - product not found. ID: {ProductId}, Admin: {AdminId} at {Time}", id, adminId, DateTime.UtcNow);
                 return NotFound("Product not found");
+            }
 
             return NoContent();
         }
